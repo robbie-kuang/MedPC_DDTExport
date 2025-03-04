@@ -10,7 +10,7 @@ _How this may help you:_ You can use this to streamline and automate your data c
 5. Run the code! Make sure to type in file paths and dates in the correct format as instructed
 
 
-### In the _SampleMedPCFiles_ folder: 
+## In the _SampleMedPCFiles_ folder: 
 
 _SampleDDTTemplate_ --> Sample MED-PC macro for DDT
 
