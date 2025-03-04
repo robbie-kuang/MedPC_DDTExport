@@ -19,4 +19,4 @@ _SampleInput.DAT_ --> Sample MED-PC data output (i.e., input for this program)
 _SampleOutput.xlsx_ --> Sample output from my mouse DDT extract
 
 
-Feel free to reach out to hykuang4@gmail.com with any questions.
+### Feel free to reach out to hykuang4@gmail.com with any questions.
