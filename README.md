@@ -12,7 +12,10 @@ _How this may help you:_ You can use this to streamline and automate your data c
 
 In the _SampleMedPCFiles_ folder: 
 _SampleDDTTemplate_ --> Sample MED-PC macro for DDT
+
 _SampleInput.DAT_ --> Sample MED-PC data output (i.e., input for this program)
+
 _SampleOutput.xlsx_ --> Sample output from my mouse DDT extract
+
 
 Feel free to reach out to hykuang4@gmail.com with any questions.
