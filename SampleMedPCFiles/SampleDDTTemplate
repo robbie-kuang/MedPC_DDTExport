@@ -1,0 +1,493 @@
+\Name:selfcontrolt_right 
+\The right lever is associated to the larger delayed reinforcer
+\This is a Selfcontrol (DDT) program for Dr. Karen G. Anderson, Behvaioral Pharmacology Lab, WVU.
+\Delays: 0", 8", 16", 32"
+
+\March-April 2004
+\Program written by: Mirari Elkoro
+\Edited by Natalie Bruner (retractable levers modifications)
+\Edited by Sally Huskinson to include a latency measure for lever presses.
+\Edited by Guohua Bi and Robbie Kuang at NIDA to fit a mice Delay Discounting Task.
+                                                             
+\Inputs
+^leftlvr=1
+^rightlvr=2  
+
+\Outputs
+^LeftOperate=10
+^RightOperate=2
+^houselight=7
+^leftlight=4
+^rightlight=5
+^pellet=3
+
+\Variables
+\a=remaining trial time for TO (180 s- time when the response was emitted, before 30 s)
+\b= pretreatment duration (default=10')
+
+\Counters for responses on screen, variable c in printout
+Dim c=40
+
+\c(0): delay #
+\c(1):# of forced trials
+\c(2):# omissions in forced
+\c(3):# left press forced
+\c(4):# right press forced
+
+\c(5):# of free trials
+\c(6):#omissions, free trials
+\c(7):#left presses, free trials
+\c(8):#right presses, free trials
+
+\c(9):resp during TO
+\c(10):resp during delay...c(32) see notes on selfcontrol
+
+
+\for random selection of forced trials
+list d= 1,2
+
+\List of delays
+list e=0", 8", 16", 32"
+\f=values for delays
+\g=array for list of delays
+\h=marker for latency measure
+
+\i=total duration of session (equal the number of free choice trails (w) 
+                              \times the # of forced trials, always 2 per delay 
+                              \(10 per trial b/c there is a list of 5 delays)
+                              \times 180 s for each trial).
+
+\j=dummy variable for left forced trials (j=1, means that forced trial w/left lever is done)
+\k=dummy variable for right forced trials (k=1, means that forced trial w/right lever is done)
+\l=latency timer
+
+\m=index of array d
+\n=array for latency data
+dim n=40
+
+
+\o=index for latency array
+\p=time for session (total time after z1)
+\q=flag to active pretreat vs active session
+
+\r=index of array x
+\s=TO timer (starts when a response is emitted before 30 s, counts down)
+\t=time for trial timer (resets every 180 s)
+\u=number of pellets for three reinforcers (always u=3) 
+\v=counter for number of free choice trials 
+\w=number of free choice trials (default=6) 
+
+dim x=34\Has to change if number of free choice trials changes (w=6)
+
+\y= index of array z
+\z=real time array
+\dim z=10000
+
+\Events:This program can be arranged to record data in real time 
+\.1: response latency for forced left
+\.2: response latency for forced right
+\.3: response latency for free left
+\.4: response latency for free right
+\.5: response latency for omissions
+
+\Define z pulses
+\z1:transition from pretreat to active session
+\z2:to TO response counter
+\z3:to delay response counter
+\to counters per block for
+\z4:omissions in forced choice trials
+\z5:responses on left lever during forced choice trials
+\z6:responses on right lever during forced choice trials
+\z7:omissions in free choice trials 
+\z8:responses on left lever during free choice trials
+\z9:responses on right lever during free choice trials
+\z10:measure response latency during forced choice trials
+\z11:measure response latency during free choice trials
+
+\Define Shows
+\1:TotalT:total time of the session from z1
+\2:TrialT:time of each interval, resets every 180 s
+\3:TOremain:Time of TO, countdown from the time of reinforcer delivery before 30 s
+
+\6:Delay#: Number of delay in the list
+
+\11:Forced: Number of total forced trials
+\17:OmForced: # omissions in forced
+\18:LForced: # of left lvr presses in forced
+\19: RForced: # of right lvr presses in forced
+
+\21:Free: Number of total free trials
+\27:OmFree: # of total omission in free trials
+\28:LFree: # of total left lever presses 
+\29:RFree: # of total right lever presses
+
+\31:RTO: responses during TO
+\32:RDelay: responses during delay
+\33:responses on left lever during pretreat
+\34:responses on right lever during pretreat
+
+\Block 1 is used to refer to trials with  delay #1 (list e)
+\36:OForce1: # of omissions during forced choice trials in block 1 (delay #1)
+\37:LForced1: # of responses on left lever during forced choice trials in block 1 
+\38:RForced1: # of responses on right lever during forced choice trials in block 1
+\41:OFree1: # of omissions during free choice trials in block 1
+\42:LFree1: # of responses on left lever during free choice trials
+\43:RFree1: # of responses on right lever during free choice trials
+
+\Block 2 (delay # 2 from list e)
+\46:OForced2
+\47:LForced2
+\48:RForced2
+\51:OFree2
+\52:LFree2
+\53:RFree2
+
+\Block 3 (delay # 3 from list e)
+\56:OForced3
+\57:LForced3
+\58:RForced3
+\61:OFree3
+\62:LFree3
+\63:RFree3
+
+\Block 4 (delay # 4 from list e)
+\66:OForced4
+\67:LForced4
+\68:RForced4
+\71:OFree4
+\72:LFree4
+\73:RFree4
+
+\Block 5 (delay # 5 from list e)
+\76:OForced5
+\77:LForced5
+\78:RForced5
+\81:OFree5
+\82:LFree5
+\83:RFree5
+
+PRINTVARS= e,c,x
+\PRINTFORMAT= 5.1 \This has to change is interested in collecting data in real time
+DISKFORMAT=8.5
+PRINTCOLUMNS=8\This has to change depending on w (# of free choice trials)
+DISKCOLUMNS=8
+\************************************************************
+s.s.1\Pretreatment, set values: #of free trials (w), duration of pretreat (b),          
+                         \list of delays (e).
+s1,
+.01": set b=10', w=5 ---> s2
+
+s2,
+#start: Off^LeftOperate, ^RightOperate; set i=((8+(w*4))*180); set q=1---> s3
+
+s3,
+b#T: z1 ---> sx
+
+\**********************************************************************************
+s.s.2, \Active session: Forced & free choice trials
+s1,
+#z1: set q=2---> s2
+
+s2, \Picks delays from list and selects randomly forced trials
+.01": list f=e(g); add c(0); Show 6, Delay#, c(0); set j=0, k=0, v=0;
+      ;randi m=d; if m=1 [@true1, @false1] 
+                      @true1: ---> s3 \Delayed large reinforcer (rightlvr) 
+                      @false1: ---> s4 \Immediate small reinforcer (leftlvr)
+
+s3, \Has the forced trial w/delayed reinforcer occurred? Extend rightlever; start latency timer
+.01": set h=0; set a=0 ; if j=0 [@true1; @false1]
+                       @true1: on ^houselight, ^rightlight, ^RightOperate; z10 ---> s5
+                       @false1: ---> s15
+
+s4,\Has the forced trial w/immediate reinforcer occurred? Extend left lever; start latency timer
+.01": set h=0; set a=0  ; if k=0 [@true2; @false2]
+                   @true2: on ^houselight, ^leftlight, ^LeftOperate; z10 ---> s7
+                   @false2: ---> s15
+
+s5,\Waits for the response to be emitted on right lever (delayed reinforcer)
+30": off ^houselight, ^rightlight, ^RightOperate; set h = 5; set x(r)=0; add r;add c(1); Show 11, ForcedT, c(1);
+     add c(2); show 17, OForcedT, c(2); z4 ---> s6
+     
+#R^rightlvr: off ^rightlight, ^RightOperate; set h=2; set x(r)=2; add r; add c(1); Show 11, ForcedT, c(1);
+              add c(3); Show 19, RForcedT, c(3); z6---> s9
+      
+
+s6, \TO for omission from left-forced
+150": set a=0, j=1 ---> s4
+#R^leftlvr: z2---> sx
+#R^rightlvr: z2  ---> sx
+
+
+s7,\Waits for the response to be emitted in left lever (immediate reinforcer)
+30": off ^houselight, ^leftlight, ^LeftOperate; set h=5; set x(r)=0; add r; add c(1); Show 11, ForcedT, c(1);
+                 add c(2); Show 17, OForcedT, c(2); z4---> s8
+  
+#R^leftlvr: off ^leftlight, ^LeftOperate; on ^pellet; off ^houselight; set h=1; set x(r)=1; add r;add c(1); Show 11, Forced, c(1);
+                  add c(4); Show 18, LForcedT, c(4); z5 ---> s13
+       
+                                               
+s8,\TO for omission from left-immediate
+150": set a=0; set k=1 ---> s3
+#R^leftlvr: z2 ---> sx
+#R^rightlvr:z2  ---> sx
+
+
+s9,\Delay
+f#T:  set u=0 ---> s10
+#R^leftlvr: z3 ---> sx
+#R^rightlvr: z3 ---> sx
+
+
+s10,\Large reinforcer (3 pellets)
+.1": off ^houselight; on ^pellet; add u ---> s11
+
+s11,
+.1": off ^pellet; on ^houselight; if u>=3 [@true3;@false3]
+                                           @true3:  off ^houselight; 
+                                                   set a=s ---> s12
+                                           @false3:---> s10
+s12, \Time for TO of delayed reinforcer
+1": sub a; Show 3, TOremain, a; if a=0 [@true4; @false4]
+                                        @true4: set j=1 ---> s4
+                                        @false4: ---> s12
+#R^leftlvr: z2 ---> sx
+#R^rightlvr: z2 ---> sx
+
+s13, \Immediate reinforcer
+1": off ^pellet; on ^houselight; off ^houselight; set a=s---> s14
+
+s14, \Time for TO of immediate reinforcer
+1": sub a; Show 3, TOremain, a; if a=0 [@true5; @false5]
+                                        @true5: set k=1 ---> s3
+                                        @false5: ---> s14
+#R^leftlvr: z2 ---> sx
+#R^rightlvr: z2 ---> sx
+
+s15, \Free choice trials start, extend levers; start latency timer
+.01": on ^houselight, ^leftlight, ^rightlight, ^LeftOperate, ^RightOperate; set h=0; z11 ---> s16
+
+s16, \Waits for response on either left or right
+30": off ^houselight, ^rightlight, ^leftlight,^LeftOperate, ^RightOperate; set h=5; set x(r)=0; add r; add c(5); Show 21, FreeT, c(5); 
+                        add c(6); Show 27, OFreeT, c(6); z7---> s17
+
+
+#R^rightlvr: off ^leftlight, ^rightlight,^LeftOperate, ^RightOperate; set h=4; set x(r)=2; add r;add c(5); Show 21, FreeT, c(5);
+                        add c(7); Show 29, RFreeT, c(7); z9---> s18 
+      
+#R^leftlvr: off ^rightlight, ^leftlight,^LeftOperate, ^RightOperate;  on ^pellet; set h=3; set x(r)= 1; add r;
+             add c(5); Show 21, FreeT, c(5);
+                          add c(8); Show 28, LFreeT, c(8); z8---> s22
+ 
+            
+s17, \TO for omission in free-choice trials
+150": add v ---> s23
+#R^leftlvr:z2 ---> sx
+#R^rightlvr:z2 ---> sx
+
+
+s18,\Delay
+f#T: set u=0 ---> s19
+#R^leftlvr: z3---> sx
+#R^rightlvr: z3 ---> sx
+
+
+s19, \Large reinforcer (3 pellets)
+.1": off ^houselight; on ^pellet; add u ---> s20
+
+s20,
+.1": off ^pellet; on ^houselight; if u>=3 [@true15;@false15]
+                                           @true15: off ^houselight;
+                                                   set a=s---> s21
+                                           @false15:---> s19
+
+s21, \Time for TO of either delayed or immediate reinforcer
+1": sub a; Show 3, TOremain, a; if a=0[@true16; @false16]
+                                       @true16: add v---> s23
+                                       @false16: ---> s21
+#R^leftlvr: z2 ---> sx
+#R^rightlvr: z2 ---> sx
+
+s22,
+.05": off ^pellet; on ^houselight; off ^houselight;  set a=s--->s21
+
+s23, \Counts the number of free choice trials, if is w, starts w/ a new set of forced
+     \if is less than w, continue w/ free choice trials
+.01": set a=0; 
+      if v>=w [@true17, @false17]
+               @true17: set v=0 ---> s2
+               @false17: ---> s15
+
+\***************************************************************************************
+s.s.3, \Trial Timer, every 180-s
+s1,
+#z1: ---> s2
+
+s2,
+.01": set t=0 ---> s3
+
+s3,
+1": add t; Show 2, TrialT, t; if t=180 [@true9,@false9]
+                                               @true9: ---> s2
+                                               @false9:---> s3
+\***************************************************************************************
+s.s.4, \TO Timer for trials in which a response is emitted before 30 s
+s1,
+#z1: ---> s2
+
+s2,
+.01": set s=180---> s3
+
+s3,
+1": sub s; if s=0 [@true10, @false10]
+                   @true10: ---> s2
+                   @false10: ---> s3
+\*************************************************************************************
+s.s.5, \Total Timer, starts after pretreat is over, is a function of w
+s1,
+#z1: set p=0 ---> s2
+
+s2,
+1": add p; Show 1, TotalT, p; if p>=i [@true11, @false11]
+                                          @true11: print--->stopabortflush
+                                          @false11:---> s2
+\***************************************************************************************
+s.s.6, \Counter for total number of responses during TO 
+s1,
+#z2: add c(9); Show 31, RTO, c(9) ---> s2
+
+s2,
+.01": ---> s1
+
+\***************************************************************************************
+s.s.7, \Counter for total number of responses during delay period
+s1,
+#z3: add c(10); Show 32, RDelay, c(10) ---> s2
+
+s2,
+.01": ---> s1
+\****************************************************************************************
+s.s.8, \Block counter for forced omissions
+s1,
+#z4:---> s2
+
+s2,
+.01":if c(0)=1 [@true,@false]
+          @true: add c(11);Show 36,OForced1, c(11)---> s1
+          @false: if c(0)=2 [@true1,@false1]
+                    @true1: add c(17); Show 46,OForced2, c(17)---> s1
+                    @false1: if c(0)=3 [@true2,@false2]
+                            @true2: add c(23); Show 56, OForced3, c(23) ---> s1
+                            @false2: if c(0)=4 [@true3,@false3]
+                                   @true3: add c(29); Show 66, OForced4, c(29)---> s1
+                                   @false3: ---> s1
+\**********************************************************************************************
+s.s.9, \Block counter for Left reponses during forced trials
+s1,
+#z5: ---> s2
+
+s2,
+.01":if c(0)=1 [@true, @false]
+             @true: add c(12); Show 37,LForced1, c(12) ---> s1
+             @false: if c(0)=2 [@true1,@false1]
+                        @true1: add c(18); Show 47, LForced2, c(18) ---> s1
+                        @false1: if c(0)=3 [@true2,@false2]
+                            @true2: add c(24); Show 57, LForced3, c(24)---> s1
+                            @false2: if c(0)=4 [@true3,@false3]
+                                   @true3: add c(30); Show 67, LForced4, c(30)---> s1
+                                   @false3: ---> s1  
+\***********************************************************************************************
+s.s.10,\Block counter for Right responses during forced trials
+s1,
+#z6: ---> s2
+
+s2,
+.01":  if c(0)= 1 [@true, @false]
+          @true: add c(13); Show 38, RForced1, c(13)---> s1
+          @false: if c(0)=2 [@true1,@false1]
+                     @true1: add c(19); Show 48, RForced2, c(19)---> s1
+                     @false1: if c(0)=3 [@true2,@false2]
+                              @true2: add c(25); Show 58, RForced3, c(25)---> s1
+                              @false2: if c(0)=4 [@true3,@false3]
+                                    @true3: add c(31); Show 68,RForced4, c(31)---> s1
+                                    @false3: ---> s1        
+\**************************************************************************************
+s.s.11, \Block counter for omissions during free choice trials
+s1,
+#z7: ---> s2
+
+s2,
+.01": if c(0)=1 [@true,@false]
+           @true: add c(14); Show 41, OFree1, c(14)---> s1
+           @false: if c(0)=2 [@true1,@false1]
+                 @true1: add c(20); Show 51, OFree2, c(20)---> s1
+                 @false1: if c(0)=3 [@true2,@false2]
+                         @true2: add c(26); Show 61, OFree3, c(26)--->s1
+                         @false2: if c(0)=4 [@true3,@false3]
+                              @true3: add c(32); Show 71, OFree4, c(32)---> s1
+                              @false3: ---> s1
+\********************************************************************************************
+s.s.12, \Block counter for Left responses during free choice trials
+s1,
+#z8:---> s2
+s2,
+.01": if c(0)=1 [@true,@false]
+           @true: add c(15); Show 42, LFree1, c(15)---> s1
+           @false: if c(0)=2 [@true1,@false1]
+                 @true1: add c(21); Show 52, LFree2, c(21) ---> s1
+                 @false1: if c(0)=3 [@true2,@false2]
+                        @true2: add c(27); Show 62, LFree3, c(27) ---> s1
+                        @false2: if c(0)=4 [@true3,@false3]
+                              @true3: add c(33); Show 72, LFree4, c(33) ---> s1
+                              @false3: ---> s1
+\********************************************************************************************
+s.s.13, \Block counter for Right free choice trials
+s1,
+#z9: ---> s2
+s2,
+.01":if c(0)=1 [@true,@false]
+            @true: add c(16); Show 43, RFree1, c(16)---> s1
+            @false: if c(0)=2 [@true1,@false1]
+                 @true1: add c(22); Show 53, RFree2, c(22) ---> s1
+                 @false1: if c(0)=3 [@true2,@false2]
+                        @true2: add c(28);Show 63, RFree3, c(28)---> s1
+                        @false2: if c(0)=4 [@true3,@false3]
+                              @true3: add c(34); Show 73, RFree4, c(34)---> s1
+                              @false3: ---> s1
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+S.S.14, \ measure response latency during forced choice trials 
+\ h = 1 for left forced, h= 2 for right forced h =5 for omission
+
+s1,      
+#Z10:  ---> S2
+s2,
+.01": add l; if h=1 [@true,@false]
+          @true:set n(o)=l+.1; add o; setl=0 ---> s1
+          @false: if h=2 [@true,@false]
+                  @true: set n(o)=l+.2; add o; set l=0 ---> s1
+                  @false: if h=5 [@true,@false]
+                        @true: set n(o)=l+.5; add o; set l=0 ---> s1
+                        @false: ---> sx
+
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+S.S.15, \measure response latency during free choice trials
+\ h = 3 for left free, h= 4 for right free h =5 for omission
+
+s1,
+#Z11: ---> S2
+s2,
+.01": add l; if h=3 [@true,@false]
+          @true:set n(o)=l+.3; add o; setl=0 ---> s1
+          @false: if h=4 [@true,@false]
+                  @true: set n(o)=l+.4; add o; set l=0 ---> s1
+                  @false: if h=5 [@true,@false]
+                        @true: set n(o)=l+.5; add o; set l=0 ---> s1
+                        @false: ---> sx
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+
+   
+                                        
+
