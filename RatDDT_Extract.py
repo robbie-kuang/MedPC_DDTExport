@@ -32,10 +32,13 @@ for file in dir.iterdir():
     keepgoing = True 
     while(keepgoing): # Go through each file from the folder and looks for those dates within the range 
         line = currentfile.readline()
-        if line == '': 
+        
+        if line == '': # End search when reach the end of file
             keepgoing = False
+        
         if "Start Date: " in line:
             currentdate = date((2000+(int(line[18:20]))),int(line[12:14]),int(line[15:17]))
+            
             if startdate <= currentdate <= enddate:
                 parsingdata[3] = str(currentdate) # Add Date to parsingdata
                 currentfile.readline() # Skip End Date line
@@ -47,19 +50,13 @@ for file in dir.iterdir():
                 for i in range(43): # Skips lines until trial by trial data
                     currentfile.readline()
                
-                previousrow = []
-                for j in range(1,5): # Mice data export is strange in that it exports as rows of 8 trials, but there are only 7 trials in a block, and this section accounts for that
+                for j in range(1,5): 
                     parsingdata[4] = j # Add Block # to parsingdata
                     row = (currentfile.readline()[9:]).replace('\n', '').split('  ')
-                    alldata = previousrow + row
-                    previousrow = []
                     for k in range(len(alldata)): 
-                        
-                        if k < 7:
-                            parsingdata[5+k] = int(float(alldata[k])) # Add trial data (left lever = 1, right lever = 2) to parsing data
-                        else: 
-                            previousrow.append(alldata[k])
+                        parsingdata[5+k] = int(float(row[k])) # Add trial data (left lever = 1, right lever = 2) to parsing data
                     data.loc[len(data)] = parsingdata
+    
     currentfile.close()
     
 # Change lever output (1s and 2s) to reward output (0s and 1s)
